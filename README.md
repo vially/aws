@@ -1,5 +1,6 @@
 # aws
-ECommerce API for aws-sdk-go
+
+ECommerce API service for [aws-sdk-go](https://github.com/aws/aws-sdk-go)
 
 ## Usage
 
