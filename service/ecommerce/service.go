@@ -11,7 +11,7 @@ import (
 
 type ECommerce struct {
 	*service.Service
-	associateTag string
+	AssociateTag string
 }
 
 // New returns a new ECommerce client.
@@ -44,9 +44,7 @@ func (e *ECommerce) NewOperationRequest(operation string, params url.Values, dat
 	params.Set("Operation", operation)
 	params.Set("Service", e.ServiceInfo.ServiceName)
 	params.Set("Version", e.ServiceInfo.APIVersion)
-	if e.associateTag != "" {
-		params.Set("AssociateTag", e.associateTag)
-	}
+	params.Set("AssociateTag", e.AssociateTag)
 
 	op := &request.Operation{
 		Name:       operation,

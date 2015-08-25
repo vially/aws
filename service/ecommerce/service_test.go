@@ -10,7 +10,7 @@ func TestServiceConfig(t *testing.T) {
 	assert.Equal(t, svc.APIVersion, "2013-08-01")
 	assert.Equal(t, svc.ServiceName, "AWSECommerceService")
 	assert.Equal(t, svc.Endpoint, "https://webservices.amazon.com")
-	assert.Equal(t, svc.associateTag, "example-tag")
+	assert.Equal(t, svc.AssociateTag, "example-tag")
 	assert.NotEmpty(t, svc.SigningRegion)
 }
 
