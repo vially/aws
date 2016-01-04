@@ -1,30 +1,38 @@
 package ecommerce
 
 import (
-	"github.com/aws/aws-sdk-go/aws/defaults"
+	"github.com/aws/aws-sdk-go/aws/client"
+	"github.com/aws/aws-sdk-go/aws/client/metadata"
 	"github.com/aws/aws-sdk-go/aws/request"
-	"github.com/aws/aws-sdk-go/aws/service"
-	"github.com/aws/aws-sdk-go/aws/service/serviceinfo"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/vially/aws/util/signer/v2"
 	"net/url"
 )
 
+// A ServiceName is the name of the service the client will make API calls to.
+const ServiceName = "AWSECommerceService"
+
 type ECommerce struct {
-	*service.Service
+	*client.Client
 	AssociateTag string
 }
 
 // New returns a new ECommerce client.
 func New(associateTag string) *ECommerce {
-	service := &service.Service{
-		ServiceInfo: serviceinfo.ServiceInfo{
-			Config:        defaults.DefaultConfig.WithEndpoint("webservices.amazon.com"),
-			ServiceName:   "AWSECommerceService",
-			APIVersion:    "2013-08-01",
-			SigningRegion: "us-east-1",
-		},
+	sess := session.New()
+	service := &ECommerce{
+		Client: client.New(
+			*sess.Config,
+			metadata.ClientInfo{
+				ServiceName:   ServiceName,
+				SigningRegion: "us-east-1",
+				Endpoint:      "https://webservices.amazon.com",
+				APIVersion:    "2013-08-01",
+			},
+			sess.Handlers,
+		),
+		AssociateTag: associateTag,
 	}
-	service.Initialize()
 
 	// Handlers
 	service.Handlers.Sign.PushBack(v2.Sign)
@@ -32,7 +40,7 @@ func New(associateTag string) *ECommerce {
 	service.Handlers.Unmarshal.PushBack(unmarshalHandler)
 	service.Handlers.UnmarshalError.PushBack(unmarshalItemLookupErrorHandler)
 
-	return &ECommerce{service, associateTag}
+	return service
 }
 
 // NewOperationRequest creates a new request for an ECommerce operation
@@ -42,8 +50,8 @@ func (e *ECommerce) NewOperationRequest(operation string, params url.Values, dat
 	}
 
 	params.Set("Operation", operation)
-	params.Set("Service", e.ServiceInfo.ServiceName)
-	params.Set("Version", e.ServiceInfo.APIVersion)
+	params.Set("Service", e.ServiceName)
+	params.Set("Version", e.APIVersion)
 	params.Set("AssociateTag", e.AssociateTag)
 
 	op := &request.Operation{
